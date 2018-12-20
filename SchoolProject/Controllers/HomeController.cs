@@ -23,7 +23,7 @@ namespace SchoolProject.Controllers
         [HttpPost]
         public IActionResult Login(LoginViewModel model)
         {
-            return this.Index();
+            return RedirectToAction("Index");
         }
 
         public IActionResult Student()
