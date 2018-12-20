@@ -15,29 +15,59 @@ namespace SchoolProject.Controllers
             return View();
         }
 
-        public IActionResult About()
-        {
-            ViewData["Message"] = "Your application description page.";
-
-            return View();
-        }
-
-        public IActionResult Contact()
-        {
-            ViewData["Message"] = "Your contact page.";
-
-            return View();
-        }
-
-        public IActionResult Privacy()
+        public IActionResult Login()
         {
             return View();
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        [HttpPost]
+        public IActionResult Login(LoginViewModel model)
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return this.Index();
         }
+
+        public IActionResult Student()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult AddStudent(StudentViewModel model)
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult DeleteStudent(int studentId)
+        {
+            return View();
+        }
+
+        public IActionResult Course()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult AddCourse()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult DeleteCourse()
+        {
+            return View();
+        }
+
+
+
+
+
+
+
+
+
+
     }
 }
