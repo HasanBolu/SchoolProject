@@ -5,11 +5,18 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using SchoolProject.Models;
+using SchoolProject.Models.SchoolDbContext;
 
 namespace SchoolProject.Controllers
 {
     public class HomeController : Controller
     {
+        SchoolProjectContext db;
+        public HomeController()
+        {
+            this.db = new SchoolProjectContext();
+        }
+
         public IActionResult Index()
         {
             return View();
@@ -28,7 +35,8 @@ namespace SchoolProject.Controllers
 
         public IActionResult Student()
         {
-            return View();
+            var students = db.Student.ToList();
+            return View(students);
         }
 
         [HttpPost]
@@ -45,6 +53,7 @@ namespace SchoolProject.Controllers
 
         public IActionResult Course()
         {
+            var courses = db.Course.ToList();
             return View();
         }
 
@@ -59,15 +68,6 @@ namespace SchoolProject.Controllers
         {
             return View();
         }
-
-
-
-
-
-
-
-
-
-
+        
     }
 }
