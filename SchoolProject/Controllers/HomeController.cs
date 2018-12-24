@@ -40,15 +40,25 @@ namespace SchoolProject.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddStudent(StudentViewModel model)
+        public IActionResult AddStudent(Student model)
         {
-            return View();
+            db.Student.Add(model);
+            db.SaveChanges();
+            return RedirectToAction("Student");
         }
 
-        [HttpPost]
-        public IActionResult DeleteStudent(int studentId)
+        [HttpGet]
+        public IActionResult DeleteStudent(int snum)
         {
-            return View();
+            var enrolled = db.Enrolled.Where(e => e.Snum == snum);
+            db.Enrolled.RemoveRange(enrolled);
+            db.SaveChanges();
+
+            var student = db.Student.Find(snum);
+            db.Student.Remove(student);
+            db.SaveChanges();
+
+            return RedirectToAction("Student");
         }
 
         public IActionResult Course()
@@ -58,14 +68,25 @@ namespace SchoolProject.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddCourse()
+        public IActionResult AddCourse(Course model)
         {
-            return View();
+            db.Course.Add(model);
+            db.SaveChanges();
+
+            return RedirectToAction("Course");
         }
 
         [HttpPost]
-        public IActionResult DeleteCourse()
+        public IActionResult DeleteCourse(string cname)
         {
+            var enrolled = db.Enrolled.Where(e => e.Cname == cname);
+            db.Enrolled.RemoveRange(enrolled);
+            db.SaveChanges();
+
+            var course = db.Course.Where(c => c.Cname == cname);
+            db.Course.RemoveRange(course);
+            db.SaveChanges();
+
             return View();
         }
 

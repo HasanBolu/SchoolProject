@@ -26,30 +26,6 @@
             <td>2011/04/25</td>
             <td>$320,800</td>
         </tr>
-        <tr>
-            <td>Howard Hatfield</td>
-            <td>Office Manager</td>
-            <td>San Francisco</td>
-            <td>51</td>
-            <td>2008/12/16</td>
-            <td>$164,500</td>
-        </tr>
-        <tr>
-            <td>Hope Fuentes</td>
-            <td>Secretary</td>
-            <td>San Francisco</td>
-            <td>41</td>
-            <td>2010/02/12</td>
-            <td>$109,850</td>
-        </tr>
-        <tr>
-            <td>Vivian Harrell</td>
-            <td>Financial Controller</td>
-            <td>San Francisco</td>
-            <td>62</td>
-            <td>2009/02/14</td>
-            <td>$452,500</td>
-        </tr>
     </tbody>
 </table>
 
@@ -60,27 +36,36 @@
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Ders Ekle</h4>
+                <h4 class="modal-title">Add Course</h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="form-group">
-                    <label for="name">Ders Adı:</label>
-                    <input type="text" class="form-control" id="name" name="name" aria-describedby="emailHelp" placeholder="">
-                </div>
-                <div class="form-group">
-                    <label for="no">Grup No:</label>
-                    <input type="text" class="form-control" id="no" name="no" placeholder="">
-                </div>
-                <div class="form-group">
-                    <label for="limit">Kontenjan:</label>
-                    <input type="text" class="form-control" id="limit" name="limit" placeholder="">
-                </div>
-                <button id="submit-supply" type="submit" class="btn btn-success">Ekle</button>
-
+                <form action="/Home/AddCourse" method="post">
+                    <div class="form-group">
+                        <label for="Cname">Course Name:</label>
+                        <input type="text" class="form-control" id="Cname" name="Cname" aria-describedby="" placeholder="">
+                    </div>
+                    <div class="form-group">
+                        <label for="MeetsAt">Meets At:</label>
+                        <input type="datetime" class="form-control" id="MeetsAt" name="MeetsAt" placeholder="">
+                    </div>
+                    <div class="form-group">
+                        <label for="EndsAt">Ends At:</label>
+                        <input type="datetime" class="form-control" id="EndsAt" name="EndsAt" placeholder="">
+                    </div>
+                    <div class="form-group">
+                        <label for="Room">Room:</label>
+                        <input type="text" class="form-control" id="Room" name="Room" placeholder="">
+                    </div>
+                    <div class="form-group">
+                        <label for="CourseInfo">Course Info:</label>
+                        <input type="text" class="form-control" id="CourseInfo" name="CourseInfo" placeholder="">
+                    </div>
+                    <button id="submit-supply" type="submit" class="btn btn-success">Create</button>
+                </form>    
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-dismiss="modal">Kapat</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
             </div>
         </div>
 
