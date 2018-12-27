@@ -29,18 +29,21 @@
                 <h3>Database Project</h3>
             </div>
             <ul class="list-unstyled components">
-                <p>Bilgisayar Mühendisliği</p>
+                <p>Computer Engineering</p>
+                @if (ViewBag.IsUser)
+                {
+                    <li>
+                        <a href="/Home/Course">Course</a>
+                    </li>
+                }
+                @if (ViewBag.IsAdmin)
+                {
+                    <li>
+                        <a href="/Home/Student">Student</a>
+                    </li>
+                }
                 <li>
-                    <a href="/Home/Course">Ders</a>
-                </li>
-                <li>
-                    <a href="/Home/Student">Öğrenci</a>
-                </li>
-                <li>
-                    <a href="#">Duyurular</a>
-                </li>
-                <li>
-                    <a href="#">İletişim</a>
+                    <a href="https://www.ce.yildiz.edu.tr/news/file/19318/BLM201819GuzDersProgLisansv4.pdf">Course Schedule</a>
                 </li>
             </ul>
         </nav>
@@ -57,12 +60,22 @@
                     </button>
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul class="nav navbar-nav ml-auto">
-                            <li class="nav-item active">
-                                <a class="nav-link" href="#">Hasan Bolu</a>
-                            </li>
-                            <li class="nav-item active">
-                                <a class="nav-link" href="/Home/Login"><i class="fa fa-power-off"></i>Çıkış Yap</a>
-                            </li>
+                            @if (ViewBag.IsUser)
+                            {
+                                <li class="nav-item active">
+                                    <a class="nav-link" href="#">Welcome!</a>
+                                </li>
+                                <li class="nav-item active">
+                                    <a class="nav-link" href="/Home/Logout"><i class="fa fa-power-off"></i>Logout</a>
+                                </li>
+                            }
+                            else
+                            {
+                                
+                                <li class="nav-item active">
+                                    <a class="nav-link" href="/Home/Login"><i class="fa fa-user"></i>Login</a>
+                                </li>
+                            }
                         </ul>
                     </div>
                 </div>

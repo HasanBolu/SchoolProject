@@ -83,6 +83,10 @@ namespace SchoolProject.Models.SchoolDbContext
 
                 entity.Property(e => e.MeetsOn).HasColumnName("meets_on");
 
+                entity.Property(e => e.EndsAt)
+                    .HasColumnName("ends_at")
+                    .HasColumnType("time(0)");
+
                 entity.Property(e => e.MeetsAt)
                     .HasColumnName("meets_at")
                     .HasColumnType("time(0)");
