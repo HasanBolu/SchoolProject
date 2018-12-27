@@ -17,6 +17,7 @@ namespace SchoolProject.Models.SchoolDbContext
 
         public virtual DbSet<Course> Course { get; set; }
         public virtual DbSet<Enrolled> Enrolled { get; set; }
+        public virtual DbSet<Section> Section { get; set; }
         public virtual DbSet<Student> Student { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -32,31 +33,18 @@ namespace SchoolProject.Models.SchoolDbContext
         {
             modelBuilder.Entity<Course>(entity =>
             {
-                entity.HasKey(e => new { e.Cname, e.MeetsAt });
+                entity.HasKey(e => e.Cname);
 
                 entity.Property(e => e.Cname)
                     .HasColumnName("cname")
                     .HasMaxLength(20)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.MeetsAt)
-                    .HasColumnName("meets_at")
-                    .HasColumnType("datetime");
+                    .IsUnicode(false)
+                    .ValueGeneratedNever();
 
                 entity.Property(e => e.CourseInfo)
                     .IsRequired()
                     .HasColumnName("courseInfo")
                     .HasMaxLength(100)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.EndsAt)
-                    .HasColumnName("ends_at")
-                    .HasColumnType("datetime");
-
-                entity.Property(e => e.Room)
-                    .IsRequired()
-                    .HasColumnName("room")
-                    .HasMaxLength(10)
                     .IsUnicode(false);
             });
 
@@ -71,11 +59,45 @@ namespace SchoolProject.Models.SchoolDbContext
                     .HasMaxLength(20)
                     .IsUnicode(false);
 
+                entity.HasOne(d => d.CnameNavigation)
+                    .WithMany(p => p.Enrolled)
+                    .HasForeignKey(d => d.Cname)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Enrolled_Course");
+
                 entity.HasOne(d => d.SnumNavigation)
                     .WithMany(p => p.Enrolled)
                     .HasForeignKey(d => d.Snum)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Enrolled_Student");
+            });
+
+            modelBuilder.Entity<Section>(entity =>
+            {
+                entity.HasKey(e => new { e.Cname, e.MeetsOn });
+
+                entity.Property(e => e.Cname)
+                    .HasColumnName("cname")
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.MeetsOn).HasColumnName("meets_on");
+
+                entity.Property(e => e.MeetsAt)
+                    .HasColumnName("meets_at")
+                    .HasColumnType("time(0)");
+
+                entity.Property(e => e.Room)
+                    .IsRequired()
+                    .HasColumnName("room")
+                    .HasMaxLength(10)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.CnameNavigation)
+                    .WithMany(p => p.Section)
+                    .HasForeignKey(d => d.Cname)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Section_Course");
             });
 
             modelBuilder.Entity<Student>(entity =>

@@ -5,10 +5,16 @@ namespace SchoolProject.Models.SchoolDbContext
 {
     public partial class Course
     {
+        public Course()
+        {
+            Enrolled = new HashSet<Enrolled>();
+            Section = new HashSet<Section>();
+        }
+
         public string Cname { get; set; }
-        public DateTime MeetsAt { get; set; }
-        public DateTime EndsAt { get; set; }
-        public string Room { get; set; }
         public string CourseInfo { get; set; }
+
+        public ICollection<Enrolled> Enrolled { get; set; }
+        public ICollection<Section> Section { get; set; }
     }
 }
