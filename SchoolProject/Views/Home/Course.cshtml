@@ -22,19 +22,20 @@
         </tr>
     </thead>
     <tbody>
-        <tr>
-            @foreach (var course in Model)
-            {
+        @foreach (var course in Model)
+        {
+            <tr>
+
                 <td>@course.Cname</td>
                 <td>@course.Section.FirstOrDefault().Room</td>
-                <td>@String.Join(',', course.Section.Select(s => s.MeetsAt + "-" + s.EndsAt))</td>
+                <td>@String.Join(',', course.Section.Select(s => s.MeetsAt.ToString(@"hh\:mm") + "-" + s.EndsAt?.ToString(@"hh\:mm")))</td>
                 <td>@course.CourseInfo</td>
                 <td>
                     @if (ViewBag.IsAdmin)
                     {
                         <a href="/Home/DeleteCourse?cname=@course.Cname" class="btn btn-danger">Delete</a>
                     }
-                    @if (ViewBag.IsStudent && !course.Enrolled.Where(e=>e.Snum == Convert.ToInt32(ViewBag.Snum)).Any())
+                    @if (ViewBag.IsStudent && !course.Enrolled.Where(e => e.Snum == Convert.ToInt32(ViewBag.Snum)).Any())
                     {
                         <a href="/Home/AddCourseToStudent?cname=@course.Cname" class="btn btn-success">Choose</a>
                     }
@@ -43,9 +44,9 @@
                         <a href="/Home/RemoveCourseOfStudent?cname=@course.Cname" class="btn btn-danger">Remove</a>
                     }
                 </td>
-            }
-        </tr>
-    </tbody>
+            </tr>
+        }
+        </tbody>
 </table>
 
 

@@ -120,7 +120,7 @@ namespace SchoolProject.Controllers
             ViewBag.IsStudent = HttpContext.Session.GetString("student") == "true";
             if (!ViewBag.IsStudent)
             {
-                RedirectToAction("Index");
+                return RedirectToAction("Index");
             }
 
             var enrolled = new Enrolled();
@@ -138,7 +138,7 @@ namespace SchoolProject.Controllers
             ViewBag.IsStudent = HttpContext.Session.GetString("student") == "true";
             if (!ViewBag.IsStudent)
             {
-                RedirectToAction("Index");
+                return RedirectToAction("Index");
             }
 
             var enrolled = db.Enrolled.Where(e => e.Cname == cname && e.Snum == Convert.ToInt32(HttpContext.Session.GetString("snum"))).FirstOrDefault();
@@ -196,9 +196,13 @@ namespace SchoolProject.Controllers
         public IActionResult LessonSchedule()
         {
             ViewBag.IsStudent = HttpContext.Session.GetString("student") == "true";
+            ViewBag.IsAdmin = HttpContext.Session.GetString("admin") == "true";
+            ViewBag.IsUser = (ViewBag.IsAdmin || ViewBag.IsStudent);
+            ViewBag.Username = HttpContext.Session.GetString("username");
+            
             if (!ViewBag.IsStudent)
             {
-                RedirectToAction("Index");
+                return RedirectToAction("Index");
             }
 
             var snum = Convert.ToInt32(HttpContext.Session.GetString("snum"));
