@@ -34,9 +34,13 @@
                     {
                         <a href="/Home/DeleteCourse?cname=@course.Cname" class="btn btn-danger">Delete</a>
                     }
-                    @if (ViewBag.IsStudent)
+                    @if (ViewBag.IsStudent && !course.Enrolled.Where(e=>e.Snum == Convert.ToInt32(ViewBag.Snum)).Any())
                     {
-                        <a href="/Home/AddCourse?cname=@course.Cname" class="btn btn-success">Choose</a>
+                        <a href="/Home/AddCourseToStudent?cname=@course.Cname" class="btn btn-success">Choose</a>
+                    }
+                    @if (ViewBag.IsStudent && course.Enrolled.Where(e => e.Snum == Convert.ToInt32(ViewBag.Snum)).Any())
+                    {
+                        <a href="/Home/RemoveCourseOfStudent?cname=@course.Cname" class="btn btn-danger">Remove</a>
                     }
                 </td>
             }

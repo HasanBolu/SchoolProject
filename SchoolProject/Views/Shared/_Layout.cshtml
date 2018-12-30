@@ -36,6 +36,12 @@
                         <a href="/Home/Course">Course</a>
                     </li>
                 }
+                @if (ViewBag.IsStudent)
+                {
+                    <li>
+                        <a href="/Home/Course">My Lesson Schedule</a>
+                    </li>
+                }
                 @if (ViewBag.IsAdmin)
                 {
                     <li>
@@ -43,7 +49,7 @@
                     </li>
                 }
                 <li>
-                    <a href="https://www.ce.yildiz.edu.tr/news/file/19318/BLM201819GuzDersProgLisansv4.pdf">Course Schedule</a>
+                    <a href="https://www.ce.yildiz.edu.tr/news/file/19318/BLM201819GuzDersProgLisansv4.pdf">Department Lesson Schedule</a>
                 </li>
             </ul>
         </nav>
@@ -63,7 +69,7 @@
                             @if (ViewBag.IsUser)
                             {
                                 <li class="nav-item active">
-                                    <a class="nav-link" href="#">Welcome!</a>
+                                    <a class="nav-link" href="#">Welcome @ViewBag.Username</a>
                                 </li>
                                 <li class="nav-item active">
                                     <a class="nav-link" href="/Home/Logout"><i class="fa fa-power-off"></i>Logout</a>
