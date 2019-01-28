@@ -27,7 +27,7 @@
             <tr>
 
                 <td>@course.Cname</td>
-                <td>@course.Section.FirstOrDefault().Room</td>
+                <td>@course.Section?.FirstOrDefault()?.Room</td>
                 <td>@String.Join(',', course.Section.Select(s => s.MeetsAt.ToString(@"hh\:mm") + "-" + s.EndsAt?.ToString(@"hh\:mm")))</td>
                 <td>@course.CourseInfo</td>
                 <td>
@@ -60,10 +60,10 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
-                <form action="/Home/AddCourse" method="post">
+                <form id="course-form" action="/Home/AddCourse" method="post">
                     <div class="form-group">
                         <label for="Cname">Course Name:</label>
-                        <input type="text" class="form-control" id="Cname" name="Cname" aria-describedby="" placeholder="">
+                        <input type="text" class="form-control" id="Cname" name="Cname" aria-describedby="" placeholder="" required>
                     </div>
                     <div class="form-group" id="sections">
                         <div id="section">
@@ -81,14 +81,14 @@
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <input class="form-control timepicker" name="MeetsAt" /><span class="input-group-addon"><span class="fa fa-clock"></span></span>
+                                    <input style="margin-left: 5px;" class="form-control timepicker" name="MeetsAt" required/><span class="input-group-addon"><span class="fa fa-clock"></span></span>
                                 </div>
                                 <div class="form-group">
-                                    <input class="form-control timepicker" name="EndsAt" /><span class="input-group-addon"><span class="fa fa-clock"></span></span>
+                                    <input class="form-control timepicker" name="EndsAt" required/><span class="input-group-addon"><span class="fa fa-clock"></span></span>
                                 </div>
                                 <div class="form-group" id="add-section-button">
-                                    <a style="margin-left:5px;" class="btn btn-primary" onclick="AddSection()">+</a>
-                                    <a style="margin-left:5px;" class="btn btn-danger" onclick="DeleteSection(this)">-</a>
+                                    <a style="margin-left:5px;color: white;" class="btn btn-primary" onclick="AddSection()">+</a>
+                                    <a style="margin-left:5px;color: white;" class="btn btn-danger delete-section"   onclick="DeleteSection(this)">-</a>
                                 </div>
                             </div>
                         </div>
@@ -97,11 +97,11 @@
                     </div>
                     <div class="form-group">
                         <label for="Room">Room:</label>
-                        <input type="text" class="form-control" id="Room" name="Room" placeholder="">
+                        <input type="text" class="form-control" id="Room" name="Room" placeholder="" required>
                     </div>
                     <div class="form-group">
                         <label for="CourseInfo">Course Info:</label>
-                        <input type="text" class="form-control" id="CourseInfo" name="CourseInfo" placeholder="">
+                        <input type="text" class="form-control" id="CourseInfo" name="CourseInfo" placeholder="" required>
                     </div>
                     <button id="submit-supply" type="submit" class="btn btn-success">Create</button>
                 </form>
@@ -134,8 +134,47 @@
     }
 
     function DeleteSection(target) {
-        $(target).parents("#section").remove();
+        var length = $(".delete-section").length;
+        if (length > 1) {
+            $(target).parents("#section").remove();
+        }
     }
+
+    $('body').on('change', 'input.timepicker', function () {
+        var val = $(this).val();
+        $(this).val(val.replace(/[^:\d]/g, ""));
+    });
+
+    function CheckTimeIntervals() {
+        
+    }
+
+    $("#submit-supply").on("click", function (e) {
+        e.preventDefault();
+        var hasError = false;
+        $(".timepicker").each(function () {
+            var val = $(this).val();
+            $(this).val(val.replace(/[^:\d]/g, ""));
+            val = val.replace(':', '');
+            var isNumeric = $.isNumeric(parseInt(val));
+            if (!isNumeric) {
+                hasError = true;
+                alert("please enter a valid time");
+                
+            } else {
+                val = parseInt(val);
+                if (val % 100 > 59 || val > 2400) {
+                    hasError = true;
+                    alert("please enter a valid time");
+                }
+            }
+        });
+
+        if (!hasError) {
+            $("#course-form").submit();
+        }
+        
+    });
 
 
 

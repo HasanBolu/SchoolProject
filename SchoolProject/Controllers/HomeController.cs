@@ -8,17 +8,26 @@ using Microsoft.EntityFrameworkCore;
 using SchoolProject.Models;
 using SchoolProject.Models.SchoolDbContext;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
+using SchoolProject.Services;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Security.Claims;
 
 namespace SchoolProject.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
         SchoolProjectContext db;
+        MainService mainService;
         public HomeController()
         {
             this.db = new SchoolProjectContext();
+            this.mainService = new MainService();
         }
 
+        [AllowAnonymous]
         public IActionResult Index()
         {
             ViewBag.IsAdmin = HttpContext.Session.GetString("admin") == "true";
@@ -29,33 +38,42 @@ namespace SchoolProject.Controllers
             return View();
         }
 
+        [AllowAnonymous]
         public IActionResult Login()
         {
-            HttpContext.Session.SetString("abc", "true");
             return View();
         }
 
+        [AllowAnonymous]
         [HttpPost]
         public IActionResult Login(LoginViewModel model)
         {
+            ClaimsIdentity claimsIdentity;
+            var authProperties = new AuthenticationProperties
+            {
+
+            };
+
             var admin = new { Username = "admin", Password = "admin123" };
             if (model.Username == admin.Username && model.Password == admin.Password)
             {
-                HttpContext.Session.SetString("admin", "true");
-                HttpContext.Session.SetString("username", model.Username);
+                claimsIdentity = mainService.GetLoggedInUserData("admin", "admin", "admin");
             }
-            else if (db.Student.Where(s=>s.Sname == model.Username && s.Password == model.Password).Any())
+            else if (db.Student.Where(s => s.Sname == model.Username && s.Password == model.Password).Any())
             {
-                HttpContext.Session.SetString("student", "true");
-                HttpContext.Session.SetString("username", model.Username);
-                HttpContext.Session.SetString("snum", db.Student.Where(s => s.Sname == model.Username && s.Password == model.Password).FirstOrDefault().Snum.ToString());
+                claimsIdentity = mainService.GetLoggedInUserData(model.Username, "student", "student");
+                claimsIdentity.AddClaim(new Claim("snum", db.Student.Where(s => s.Sname == model.Username && s.Password == model.Password).FirstOrDefault().Snum.ToString()));
             }
             else
             {
                 ViewBag.Error = true;
                 return View();
             }
-            
+
+            HttpContext.SignInAsync(
+                        CookieAuthenticationDefaults.AuthenticationScheme,
+                        new ClaimsPrincipal(claimsIdentity),
+                        authProperties);
             return RedirectToAction("Index");
         }
 
@@ -104,13 +122,13 @@ namespace SchoolProject.Controllers
             ViewBag.IsUser = (ViewBag.IsAdmin || ViewBag.IsStudent);
             ViewBag.Username = HttpContext.Session.GetString("username");
             ViewBag.Snum = HttpContext.Session.GetString("snum");
-            
+
             if (!ViewBag.IsUser)
             {
                 return RedirectToAction("Index");
             }
 
-            var courses = db.Course.Include(c=>c.Section).Include(c=>c.Enrolled).ToList();
+            var courses = db.Course.Include(c => c.Section).Include(c => c.Enrolled).ToList();
             return View(courses);
         }
 
@@ -147,7 +165,7 @@ namespace SchoolProject.Controllers
 
             return RedirectToAction("Course");
         }
-        
+
         [HttpPost]
         public IActionResult AddCourse(CourseViewModel model)
         {
@@ -168,7 +186,7 @@ namespace SchoolProject.Controllers
 
                 db.Section.Add(section);
             }
-            
+
             db.SaveChanges();
 
             return RedirectToAction("Course");
@@ -199,7 +217,7 @@ namespace SchoolProject.Controllers
             ViewBag.IsAdmin = HttpContext.Session.GetString("admin") == "true";
             ViewBag.IsUser = (ViewBag.IsAdmin || ViewBag.IsStudent);
             ViewBag.Username = HttpContext.Session.GetString("username");
-            
+
             if (!ViewBag.IsStudent)
             {
                 return RedirectToAction("Index");
