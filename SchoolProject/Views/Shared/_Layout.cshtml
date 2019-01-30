@@ -1,4 +1,11 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+
+@{
+    var isAdmin = (await AuthorizationService.AuthorizeAsync(User, "Admin")).Succeeded;
+    var isStudent = (await AuthorizationService.AuthorizeAsync(User, "Student")).Succeeded;
+}
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
@@ -16,7 +23,7 @@
     <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js" integrity="sha384-tzzSw1/Vo+0N5UhStP3bvwWPq+uvzCMfrN1fEFe+xBmv1C/AtVX5K0uZtmcHitFZ" crossorigin="anonymous"></script>
     <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js" integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY" crossorigin="anonymous"></script>
     <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
-    
+
     <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.14.1/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/js/bootstrap-datetimepicker.min.js"></script>
@@ -30,19 +37,19 @@
             </div>
             <ul class="list-unstyled components">
                 <p>Computer Engineering</p>
-                @if (ViewBag.IsUser)
+                @if (isAdmin || isStudent)
                 {
                     <li>
                         <a href="/Home/Course">Course</a>
                     </li>
                 }
-                @if (ViewBag.IsStudent)
+                @if (isStudent)
                 {
                     <li>
                         <a href="/Home/LessonSchedule">My Lesson Schedule</a>
                     </li>
                 }
-                @if (ViewBag.IsAdmin)
+                @if (isAdmin)
                 {
                     <li>
                         <a href="/Home/Student">Student</a>
@@ -66,10 +73,10 @@
                     </button>
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul class="nav navbar-nav ml-auto">
-                            @if (ViewBag.IsUser)
+                            @if (isAdmin || isStudent)
                             {
                                 <li class="nav-item active">
-                                    <a class="nav-link" href="#">Welcome @ViewBag.Username</a>
+                                    <a class="nav-link" href="#">Welcome</a>
                                 </li>
                                 <li class="nav-item active">
                                     <a class="nav-link" href="/Home/Logout"><i class="fa fa-power-off"></i>Logout</a>
@@ -77,7 +84,7 @@
                             }
                             else
                             {
-                                
+
                                 <li class="nav-item active">
                                     <a class="nav-link" href="/Home/Login"><i class="fa fa-user"></i>Login</a>
                                 </li>

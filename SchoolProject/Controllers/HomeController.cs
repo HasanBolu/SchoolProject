@@ -30,11 +30,6 @@ namespace SchoolProject.Controllers
         [AllowAnonymous]
         public IActionResult Index()
         {
-            ViewBag.IsAdmin = HttpContext.Session.GetString("admin") == "true";
-            ViewBag.IsStudent = HttpContext.Session.GetString("student") == "true";
-            ViewBag.IsUser = (ViewBag.IsAdmin || ViewBag.IsStudent);
-            ViewBag.Username = HttpContext.Session.GetString("username");
-
             return View();
         }
 
@@ -57,11 +52,11 @@ namespace SchoolProject.Controllers
             var admin = new { Username = "admin", Password = "admin123" };
             if (model.Username == admin.Username && model.Password == admin.Password)
             {
-                claimsIdentity = mainService.GetLoggedInUserData("admin", "admin", "admin");
+                claimsIdentity = mainService.GetLoggedInUserData("admin", "admin", "Admin");
             }
             else if (db.Student.Where(s => s.Sname == model.Username && s.Password == model.Password).Any())
             {
-                claimsIdentity = mainService.GetLoggedInUserData(model.Username, "student", "student");
+                claimsIdentity = mainService.GetLoggedInUserData(model.Username, "student", "Student");
                 claimsIdentity.AddClaim(new Claim("snum", db.Student.Where(s => s.Sname == model.Username && s.Password == model.Password).FirstOrDefault().Snum.ToString()));
             }
             else
@@ -77,23 +72,15 @@ namespace SchoolProject.Controllers
             return RedirectToAction("Index");
         }
 
+        [Authorize(Roles="Admin")]
         public IActionResult Student()
         {
-            if (HttpContext.Session.GetString("admin") != "true")
-            {
-                return RedirectToAction("Index");
-            }
-
-            ViewBag.IsAdmin = HttpContext.Session.GetString("admin") == "true";
-            ViewBag.IsStudent = HttpContext.Session.GetString("student") == "true";
-            ViewBag.IsUser = (ViewBag.IsAdmin || ViewBag.IsStudent);
-            ViewBag.Username = HttpContext.Session.GetString("username");
-
             var students = db.Student.ToList();
             return View(students);
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public IActionResult AddStudent(Student model)
         {
             db.Student.Add(model);
@@ -102,6 +89,7 @@ namespace SchoolProject.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public IActionResult DeleteStudent(int snum)
         {
             var enrolled = db.Enrolled.Where(e => e.Snum == snum);
@@ -115,35 +103,20 @@ namespace SchoolProject.Controllers
             return RedirectToAction("Student");
         }
 
+        [Authorize(Roles = "Admin,Student")]
         public IActionResult Course()
         {
-            ViewBag.IsAdmin = HttpContext.Session.GetString("admin") == "true";
-            ViewBag.IsStudent = HttpContext.Session.GetString("student") == "true";
-            ViewBag.IsUser = (ViewBag.IsAdmin || ViewBag.IsStudent);
-            ViewBag.Username = HttpContext.Session.GetString("username");
-            ViewBag.Snum = HttpContext.Session.GetString("snum");
-
-            if (!ViewBag.IsUser)
-            {
-                return RedirectToAction("Index");
-            }
-
             var courses = db.Course.Include(c => c.Section).Include(c => c.Enrolled).ToList();
             return View(courses);
         }
 
         [HttpGet]
+        [Authorize(Roles = "Student")]
         public IActionResult AddCourseToStudent(string cname)
         {
-            ViewBag.IsStudent = HttpContext.Session.GetString("student") == "true";
-            if (!ViewBag.IsStudent)
-            {
-                return RedirectToAction("Index");
-            }
-
             var enrolled = new Enrolled();
             enrolled.Cname = cname;
-            enrolled.Snum = Convert.ToInt32(HttpContext.Session.GetString("snum"));
+            enrolled.Snum = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(x => x.Type == "snum").Value);
             db.Enrolled.Add(enrolled);
             db.SaveChanges();
 
@@ -151,15 +124,10 @@ namespace SchoolProject.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Student")]
         public IActionResult RemoveCourseOfStudent(string cname)
         {
-            ViewBag.IsStudent = HttpContext.Session.GetString("student") == "true";
-            if (!ViewBag.IsStudent)
-            {
-                return RedirectToAction("Index");
-            }
-
-            var enrolled = db.Enrolled.Where(e => e.Cname == cname && e.Snum == Convert.ToInt32(HttpContext.Session.GetString("snum"))).FirstOrDefault();
+            var enrolled = db.Enrolled.Where(e => e.Cname == cname && e.Snum == Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(x => x.Type == "snum").Value)).FirstOrDefault();
             db.Enrolled.Remove(enrolled);
             db.SaveChanges();
 
@@ -167,6 +135,7 @@ namespace SchoolProject.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public IActionResult AddCourse(CourseViewModel model)
         {
             var course = new Course();
@@ -193,6 +162,7 @@ namespace SchoolProject.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public IActionResult DeleteCourse(string cname)
         {
             var enrolled = db.Enrolled.Where(e => e.Cname == cname);
@@ -211,20 +181,10 @@ namespace SchoolProject.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Student")]
         public IActionResult LessonSchedule()
         {
-            ViewBag.IsStudent = HttpContext.Session.GetString("student") == "true";
-            ViewBag.IsAdmin = HttpContext.Session.GetString("admin") == "true";
-            ViewBag.IsUser = (ViewBag.IsAdmin || ViewBag.IsStudent);
-            ViewBag.Username = HttpContext.Session.GetString("username");
-
-            if (!ViewBag.IsStudent)
-            {
-                return RedirectToAction("Index");
-            }
-
-            var snum = Convert.ToInt32(HttpContext.Session.GetString("snum"));
-
+            var snum = Convert.ToInt32(HttpContext.User.Claims.FirstOrDefault(x=>x.Type == "snum").Value);
             var courses = db.Course.Include(c => c.Enrolled)
                                    .Include(c => c.Section)
                                    .Where(c => c.Enrolled.Where(e => e.Snum == snum).Any())
@@ -234,11 +194,10 @@ namespace SchoolProject.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin,Student")]
         public IActionResult Logout()
         {
-            HttpContext.Session.Remove("student");
-            HttpContext.Session.Remove("admin");
-
+            HttpContext.SignOutAsync();
             return RedirectToAction("Login");
         }
     }

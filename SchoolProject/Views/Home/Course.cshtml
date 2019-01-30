@@ -1,11 +1,19 @@
 ﻿@model List<SchoolProject.Models.SchoolDbContext.Course>;
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+
 @{
     ViewData["Title"] = "Course";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+@{ 
+    var isAdmin = (await AuthorizationService.AuthorizeAsync(User, "Admin")).Succeeded;
+    var isStudent = (await AuthorizationService.AuthorizeAsync(User, "Student")).Succeeded;
+}
 
 <h2>Dersler</h2>
-@if (ViewBag.IsAdmin)
+
+@if (isAdmin)
 {
     <button data-target="#modal-course" data-toggle="modal" class="btn btn-success" style="margin-top: 15px;margin-bottom: 15px;">Add Course</button>
 }
@@ -31,22 +39,22 @@
                 <td>@String.Join(',', course.Section.Select(s => s.MeetsAt.ToString(@"hh\:mm") + "-" + s.EndsAt?.ToString(@"hh\:mm")))</td>
                 <td>@course.CourseInfo</td>
                 <td>
-                    @if (ViewBag.IsAdmin)
+                    @if (isAdmin)
                     {
                         <a href="/Home/DeleteCourse?cname=@course.Cname" class="btn btn-danger">Delete</a>
                     }
-                    @if (ViewBag.IsStudent && !course.Enrolled.Where(e => e.Snum == Convert.ToInt32(ViewBag.Snum)).Any())
+                    @if (isStudent && !course.Enrolled.Where(e => e.Snum == Convert.ToInt32(ViewBag.Snum)).Any())
                     {
                         <a href="/Home/AddCourseToStudent?cname=@course.Cname" class="btn btn-success">Choose</a>
                     }
-                    @if (ViewBag.IsStudent && course.Enrolled.Where(e => e.Snum == Convert.ToInt32(ViewBag.Snum)).Any())
+                    @if (isStudent && course.Enrolled.Where(e => e.Snum == Convert.ToInt32(ViewBag.Snum)).Any())
                     {
                         <a href="/Home/RemoveCourseOfStudent?cname=@course.Cname" class="btn btn-danger">Remove</a>
                     }
                 </td>
             </tr>
         }
-        </tbody>
+    </tbody>
 </table>
 
 
@@ -71,24 +79,24 @@
                             <div class="form-inline">
                                 <div class="form-group">
                                     <select name="MeetsOn" class="form-control" id="dayOfWeek">
-                                        <option value="0">0</option>
-                                        <option value="1">1</option>
-                                        <option value="2">2</option>
-                                        <option value="3">3</option>
-                                        <option value="4">4</option>
-                                        <option value="5">5</option>
-                                        <option value="6">6</option>
+                                        <option value="0">Monday</option>
+                                        <option value="1">Tuesday</option>
+                                        <option value="2">Wednesday</option>
+                                        <option value="3">Thursday</option>
+                                        <option value="4">Friday</option>
+                                        <option value="5">Saturday</option>
+                                        <option value="6">Sunday</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <input style="margin-left: 5px;" class="form-control timepicker" name="MeetsAt" required/><span class="input-group-addon"><span class="fa fa-clock"></span></span>
+                                    <input style="margin-left: 5px;" class="form-control timepicker" name="MeetsAt" required /><span class="input-group-addon"><span class="fa fa-clock"></span></span>
                                 </div>
                                 <div class="form-group">
-                                    <input class="form-control timepicker" name="EndsAt" required/><span class="input-group-addon"><span class="fa fa-clock"></span></span>
+                                    <input class="form-control timepicker" name="EndsAt" required /><span class="input-group-addon"><span class="fa fa-clock"></span></span>
                                 </div>
                                 <div class="form-group" id="add-section-button">
                                     <a style="margin-left:5px;color: white;" class="btn btn-primary" onclick="AddSection()">+</a>
-                                    <a style="margin-left:5px;color: white;" class="btn btn-danger delete-section"   onclick="DeleteSection(this)">-</a>
+                                    <a style="margin-left:5px;color: white;" class="btn btn-danger delete-section" onclick="DeleteSection(this)">-</a>
                                 </div>
                             </div>
                         </div>
@@ -117,14 +125,6 @@
 <script>
     $('#example').DataTable();
 
-    //$(".timepicker").datetimepicker({
-    //    format: "LT",
-    //    icons: {
-    //        up: "fa fa-chevron-up",
-    //        down: "fa fa-chevron-down"
-    //    }
-    //});
-
     var sectionHtml;
     function AddSection() {
         if (sectionHtml == null) {
@@ -146,7 +146,7 @@
     });
 
     function CheckTimeIntervals() {
-        
+
     }
 
     $("#submit-supply").on("click", function (e) {
@@ -160,7 +160,7 @@
             if (!isNumeric) {
                 hasError = true;
                 alert("please enter a valid time");
-                
+
             } else {
                 val = parseInt(val);
                 if (val % 100 > 59 || val > 2400) {
@@ -173,7 +173,7 @@
         if (!hasError) {
             $("#course-form").submit();
         }
-        
+
     });
 
 
